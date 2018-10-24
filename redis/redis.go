@@ -151,6 +151,11 @@ func (r *Cache) Lua(lua string, keys ...string) (interface{}, error) {
 	return rsp, nil
 }
 
+func (r *Cache) Close() error {
+	return r.client.Close()
+}
+
+
 type mlog struct {
 	log Logger
 }
