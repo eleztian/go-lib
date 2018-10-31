@@ -1,7 +1,7 @@
 package mongodb
 
 import (
-	"github.com/Cyinx/einx/slog"
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -38,7 +38,7 @@ func (mgr *MongoDBMgr) Start() error {
 		return err
 	}
 	mgr.session.SetMode(Monotonic, true)
-	slog.LogInfo("mongodb", "MongoDB Connect success")
+	fmt.Println("mongodb", "MongoDB Connect success")
 	return nil
 }
 
@@ -47,7 +47,7 @@ func (mgr *MongoDBMgr) Close() {
 		mgr.session.DB("").Logout()
 		mgr.session.Close()
 		mgr.session = nil
-		slog.LogInfo("mongodb", "Disconnect mongodb url: ", mgr.dbcfg.String())
+		fmt.Println("mongodb", "Disconnect mongodb url: ", mgr.dbcfg.String())
 	}
 }
 
@@ -115,7 +115,7 @@ func (mgr *MongoDBMgr) UpdateInsert(collection string, cond interface{}, doc int
 	c := dbSession.DB("").C(collection)
 	_, err := c.Upsert(cond, bson.M{"$set": doc})
 	if err != nil {
-		slog.LogInfo("mongodb", "UpdateInsert failed collection is:%s. cond is:%v", collection, cond)
+		fmt.Printf("mongodb UpdateInsert failed collection is:%s. cond is:%v\n", collection, cond)
 	}
 
 	return err
@@ -132,7 +132,7 @@ func (mgr *MongoDBMgr) RemoveOne(collection string, condName string, condValue i
 	c := dbSession.DB("").C(collection)
 	err := c.Remove(bson.M{condName: condValue})
 	if err != nil && err != mgo.ErrNotFound {
-		slog.LogInfo("mongodb", "remove failed from collection:%s. name:%s-value:%d", collection, condName, condValue)
+		fmt.Printf("mongodb remove failed from collection:%s. name:%s-value:%d\n", collection, condName, condValue)
 	}
 
 	return err
@@ -151,7 +151,7 @@ func (mgr *MongoDBMgr) RemoveOneByCond(collection string, cond interface{}) erro
 	err := c.Remove(cond)
 
 	if err != nil && err != mgo.ErrNotFound {
-		slog.LogInfo("mongodb", "remove failed from collection:%s. cond :%v, err: %v.", collection, cond, err)
+		fmt.Printf("mongodb remove failed from collection:%s. cond :%v, err: %v.", collection, cond, err)
 	}
 
 	return err
@@ -169,10 +169,10 @@ func (mgr *MongoDBMgr) RemoveAll(collection string, cond interface{}) error {
 	c := dbSession.DB("").C(collection)
 	change, err := c.RemoveAll(cond)
 	if err != nil && err != mgo.ErrNotFound {
-		slog.LogInfo("mongodb", "MongoDBMgr RemoveAll failed : %s, %v", collection, cond)
+		fmt.Printf("mongodb MongoDBMgr RemoveAll failed : %s, %v", collection, cond)
 		return err
 	}
-	slog.LogInfo("mongodb", "MongoDBMgr RemoveAll: %v, %v", change.Updated, change.Removed)
+	fmt.Printf("mongodb MongoDBMgr RemoveAll: %v, %v", change.Updated, change.Removed)
 	return nil
 }
 

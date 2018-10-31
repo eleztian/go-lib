@@ -2,8 +2,7 @@ package mysql
 
 import (
 	"database/sql"
-	"fmt"
-	"github.com/Cyinx/einx/slog"
+	"log"
 	"time"
 )
 
@@ -31,7 +30,7 @@ func (mgr *MysqlMgr) Start() error {
 	if err = mgr.Ping(); err != nil {
 		return err
 	}
-	slog.LogInfo("mysql", "mysql connect success.")
+	log.Println("mysql", "mysql connect success.")
 	return nil
 }
 
@@ -39,7 +38,7 @@ func (mgr *MysqlMgr) Close() {
 	if mgr.session != nil {
 		mgr.session.Close()
 		mgr.session = nil
-		slog.LogInfo("mysql", "mysql disconnect")
+		log.Println("mysql", "mysql disconnect")
 	}
 }
 
@@ -67,7 +66,7 @@ func getNamedRows(query interface{}) ([]map[string]interface{}, error) {
 	}
 	columnTypes, err := row.ColumnTypes()
 	if err != nil {
-		slog.LogError("mysql", "columns error:%v", err)
+		log.Printf("mysql columns error:%v\n", err)
 		return nil, err
 	}
 
@@ -95,14 +94,13 @@ func getNamedRows(query interface{}) ([]map[string]interface{}, error) {
 			case "BLOB":
 				values[k] = new([]byte)
 			default:
-				fmt.Println("default", c.DatabaseTypeName())
 				values[k] = new([]byte)
 			}
 		}
 
 		for row.Next() {
 			if err = row.Scan(values...); err != nil {
-				slog.LogError("mysql", "Scan error:%v", err)
+				log.Printf("mysql Scan error:%v\n", err)
 				return nil, err
 			}
 
